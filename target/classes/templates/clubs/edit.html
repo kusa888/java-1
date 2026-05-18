@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>编辑社团</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f7fa; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; }
+        .nav { display: flex; justify-content: center; gap: 20px; margin-top: 15px; }
+        .nav a { color: white; text-decoration: none; padding: 8px 16px; border-radius: 20px; transition: background 0.3s; }
+        .nav a:hover { background: rgba(255,255,255,0.2); }
+        .container { max-width: 600px; margin: 30px auto; padding: 0 20px; }
+        .section { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .section h2 { color: #333; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #666; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #667eea; }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        .form-group .hint { color: #999; font-size: 12px; margin-top: 5px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; font-size: 14px; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a6fd6; }
+        .btn-secondary { background: #95a5a6; color: white; margin-left: 10px; }
+        .btn-secondary:hover { background: #7f8c8d; }
+        .error { color: #e74c3c; margin-bottom: 15px; padding: 10px; background: #fee; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>社团管理系统</h1>
+        <div class="nav">
+            <a href="/">首页</a>
+            <a href="/members">成员管理</a>
+            <a href="/clubs">社团管理</a>
+            <a href="/activities">活动管理</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="section">
+            <h2>编辑社团</h2>
+            <div th:if="${error}" class="error" th:text="${error}"></div>
+            <form method="post" th:action="'/clubs/edit/' + ${club.id}">
+                <div class="form-group">
+                    <label>社团名称</label>
+                    <input type="text" name="name" th:value="${club.name}">
+                    <div class="hint">留空则不修改</div>
+                </div>
+                <div class="form-group">
+                    <label>社团描述</label>
+                    <textarea name="description" th:text="${club.description}"></textarea>
+                    <div class="hint">留空则不修改</div>
+                </div>
+                <button type="submit" class="btn btn-primary">保存</button>
+                <a href="/clubs" class="btn btn-secondary">取消</a>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
