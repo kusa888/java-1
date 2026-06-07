@@ -31,7 +31,7 @@ public class ActivityService {
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     
     public Activity createActivity(Long clubId, String name, String description, 
-                                   String startTimeStr, String endTimeStr, String location) {
+                                   String startTimeStr, String endTimeStr, String location, boolean isAdmin) {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new IllegalArgumentException("社团不存在"));
         Date startTime, endTime;
@@ -42,7 +42,27 @@ public class ActivityService {
             throw new IllegalArgumentException("时间格式错误，应为 yyyy-MM-dd HH:mm:ss");
         }
         Activity activity = new Activity(name, description, club, startTime, endTime, location);
+        activity.setApprovalStatus(isAdmin ? "approved" : "pending");
         return activityRepository.save(activity);
+    }
+    
+    public Activity approveActivity(Long id) {
+        Activity activity = activityRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("活动不存在"));
+        activity.setApprovalStatus("approved");
+        return activityRepository.save(activity);
+    }
+    
+    public Activity rejectActivity(Long id) {
+        Activity activity = activityRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("活动不存在"));
+        activity.setApprovalStatus("rejected");
+        return activityRepository.save(activity);
+    }
+    
+    @Transactional(readOnly = true)
+    public List<Activity> getPendingActivities() {
+        return activityRepository.findByApprovalStatus("pending");
     }
     
     public Activity updateActivity(Long id, String name, String description,

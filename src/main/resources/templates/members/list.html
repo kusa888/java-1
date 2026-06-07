@@ -32,7 +32,17 @@
 </head>
 <body>
     <div class="header">
-        <h1>社团管理系统</h1>
+        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto;">
+            <h1>社团管理系统</h1>
+            <div style="text-align: right;">
+                <span th:if="${currentUser != null}">
+                    当前用户: <span th:text="${currentUser}"></span>
+                    <form action="/logout" method="post" style="display: inline; margin-left: 15px;">
+                        <button type="submit" style="background: none; border: none; color: white; cursor: pointer; text-decoration: underline;">退出</button>
+                    </form>
+                </span>
+            </div>
+        </div>
         <div class="nav">
             <a href="/">首页</a>
             <a href="/members">成员管理</a>

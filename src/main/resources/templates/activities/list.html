@@ -31,12 +31,23 @@
 </head>
 <body>
     <div class="header">
-        <h1>社团管理系统</h1>
+        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto;">
+            <h1>社团管理系统</h1>
+            <div style="text-align: right;">
+                <span th:if="${currentUser != null}">
+                    当前用户: <span th:text="${currentUser}"></span>
+                    <form action="/logout" method="post" style="display: inline; margin-left: 15px;">
+                        <button type="submit" style="background: none; border: none; color: white; cursor: pointer; text-decoration: underline;">退出</button>
+                    </form>
+                </span>
+            </div>
+        </div>
         <div class="nav">
             <a href="/">首页</a>
             <a href="/members">成员管理</a>
             <a href="/clubs">社团管理</a>
             <a href="/activities">活动管理</a>
+            <a th:if="${isAdmin}" href="/activities/pending">待审批</a>
         </div>
     </div>
     
@@ -55,14 +66,15 @@
                         <th>开始时间</th>
                         <th>结束时间</th>
                         <th>地点</th>
-                        <th>状态</th>
+                        <th>审批状态</th>
+                        <th>活动状态</th>
                         <th>参与人数</th>
                         <th>操作</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:if="${activities.size() == 0}">
-                        <td colspan="9" class="no-data">暂无活动</td>
+                        <td colspan="10" class="no-data">暂无活动</td>
                     </tr>
                     <tr th:each="activity : ${activities}">
                         <td th:text="${activity.id}"></td>
@@ -72,15 +84,21 @@
                         <td th:text="${activity.endTime}"></td>
                         <td th:text="${activity.location}"></td>
                         <td>
+                            <span th:if="${activity.approvalStatus == 'pending'}" style="color: #f39c12;">待审批</span>
+                            <span th:if="${activity.approvalStatus == 'approved'}" style="color: #27ae60;">已批准</span>
+                            <span th:if="${activity.approvalStatus == 'rejected'}" style="color: #e74c3c;">已拒绝</span>
+                        </td>
+                        <td>
                             <span th:if="${activity.status == 'planned'}" class="status-planned">待开始</span>
                             <span th:if="${activity.status == 'ongoing'}" class="status-ongoing">进行中</span>
                             <span th:if="${activity.status == 'ended'}" class="status-ended">已结束</span>
                         </td>
                         <td th:text="${activity.participants?.size()}"></td>
                         <td class="actions">
-                            <a th:href="'/activities/edit/' + ${activity.id}" class="btn btn-primary">编辑</a>
-                            <a th:href="'/activities/delete/' + ${activity.id}" class="btn btn-danger" 
+                            <a th:if="${activity.approvalStatus == 'approved'}" th:href="'/activities/edit/' + ${activity.id}" class="btn btn-primary">编辑</a>
+                            <a th:if="${activity.approvalStatus == 'approved'}" th:href="'/activities/delete/' + ${activity.id}" class="btn btn-danger" 
                                onclick="return confirm('确定要删除该活动吗？')">删除</a>
+                            <span th:if="${activity.approvalStatus != 'approved'}" style="color: #999;">待审批</span>
                         </td>
                     </tr>
                 </tbody>

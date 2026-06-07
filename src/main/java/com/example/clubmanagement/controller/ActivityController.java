@@ -7,6 +7,9 @@ import com.example.clubmanagement.service.ActivityService;
 import com.example.clubmanagement.service.ClubService;
 import com.example.clubmanagement.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -26,10 +29,16 @@ public class ActivityController {
     @Autowired
     private MemberService memberService;
     
+    private boolean isAdmin() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth != null && auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+    }
+    
     @GetMapping
     public String listActivities(Model model) {
         List<Activity> activities = activityService.getAllActivities();
         model.addAttribute("activities", activities);
+        model.addAttribute("isAdmin", isAdmin());
         return "activities/list";
     }
     
@@ -38,6 +47,7 @@ public class ActivityController {
         List<Club> clubs = clubService.getAllClubs();
         model.addAttribute("activity", new Activity());
         model.addAttribute("clubs", clubs);
+        model.addAttribute("isAdmin", isAdmin());
         return "activities/add";
     }
     
@@ -50,14 +60,49 @@ public class ActivityController {
                             @RequestParam String location,
                             Model model) {
         try {
-            activityService.createActivity(clubId, name, description, startTime, endTime, location);
-            return "redirect:/activities";
+            activityService.createActivity(clubId, name, description, startTime, endTime, location, isAdmin());
+            if (isAdmin()) {
+                return "redirect:/activities";
+            } else {
+                model.addAttribute("message", "活动申请已提交，请等待管理员审批");
+                List<Club> clubs = clubService.getAllClubs();
+                model.addAttribute("activity", new Activity());
+                model.addAttribute("clubs", clubs);
+                model.addAttribute("isAdmin", false);
+                return "activities/add";
+            }
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("activity", new Activity());
             model.addAttribute("clubs", clubService.getAllClubs());
+            model.addAttribute("isAdmin", isAdmin());
             return "activities/add";
         }
+    }
+    
+    @GetMapping("/pending")
+    public String listPendingActivities(Model model) {
+        List<Activity> pendingActivities = activityService.getPendingActivities();
+        model.addAttribute("pendingActivities", pendingActivities);
+        return "activities/pending";
+    }
+    
+    @GetMapping("/{id}/approve")
+    public String approveActivity(@PathVariable Long id) {
+        try {
+            activityService.approveActivity(id);
+        } catch (IllegalArgumentException e) {
+        }
+        return "redirect:/activities/pending";
+    }
+    
+    @GetMapping("/{id}/reject")
+    public String rejectActivity(@PathVariable Long id) {
+        try {
+            activityService.rejectActivity(id);
+        } catch (IllegalArgumentException e) {
+        }
+        return "redirect:/activities/pending";
     }
     
     @GetMapping("/edit/{id}")

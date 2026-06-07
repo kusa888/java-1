@@ -7,6 +7,8 @@ import com.example.clubmanagement.service.ActivityService;
 import com.example.clubmanagement.service.ClubService;
 import com.example.clubmanagement.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +37,11 @@ public class HomeController {
         model.addAttribute("clubCount", clubs.size());
         model.addAttribute("activityCount", activities.size());
         model.addAttribute("recentActivities", activities.size() > 5 ? activities.subList(0, 5) : activities);
+        
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+            model.addAttribute("currentUser", auth.getName());
+        }
         
         return "index";
     }

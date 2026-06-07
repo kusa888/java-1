@@ -385,7 +385,7 @@ public class ConsoleUI {
         String endTime = getInput("请输入结束时间(yyyy-MM-dd HH:mm:ss): ");
         String location = getInput("请输入活动地点: ");
         
-        Activity activity = activityService.createActivity(clubId, name, description, startTime, endTime, location);
+        Activity activity = activityService.createActivity(clubId, name, description, startTime, endTime, location, true);
         System.out.println("创建成功，活动ID: " + activity.getId());
     }
     

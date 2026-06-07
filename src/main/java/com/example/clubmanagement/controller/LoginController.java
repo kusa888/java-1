@@ -36,7 +36,6 @@ public class LoginController {
     public String register(@RequestParam String username,
                           @RequestParam String password,
                           @RequestParam String confirmPassword,
-                          @RequestParam(defaultValue = "MEMBER") String role,
                           Model model) {
         if (!password.equals(confirmPassword)) {
             model.addAttribute("error", "两次输入的密码不一致");
@@ -46,12 +45,13 @@ public class LoginController {
             model.addAttribute("error", "密码长度至少为6位");
             return "register";
         }
+        // 禁止注册管理员账号
+        if ("admin".equalsIgnoreCase(username)) {
+            model.addAttribute("error", "该用户名不允许注册");
+            return "register";
+        }
         try {
-            if ("ADMIN".equals(role)) {
-                userService.registerAdmin(username, password);
-            } else {
-                userService.registerUser(username, password);
-            }
+            userService.registerUser(username, password);
             model.addAttribute("message", "注册成功，请登录");
             return "login";
         } catch (IllegalArgumentException e) {

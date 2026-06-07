@@ -12,4 +12,5 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
     List<Activity> findByClub(Club club);
     List<Activity> findByStatus(String status);
     List<Activity> findByNameContaining(String name);
+    List<Activity> findByApprovalStatus(String approvalStatus);
 }

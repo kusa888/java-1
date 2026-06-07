@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>成员管理</title>
+    <title>待审批活动 - 社团管理系统</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f7fa; }
@@ -17,17 +17,16 @@
         .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; font-size: 14px; }
         .btn-primary { background: #667eea; color: white; }
         .btn-primary:hover { background: #5a6fd6; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-success:hover { background: #1e8449; }
         .btn-danger { background: #e74c3c; color: white; }
         .btn-danger:hover { background: #c0392b; }
-        .btn-warning { background: #f39c12; color: white; }
-        .btn-warning:hover { background: #e67e22; }
         .table { width: 100%; border-collapse: collapse; }
         .table th, .table td { padding: 12px; text-align: left; border-bottom: 1px solid #f0f0f0; }
         .table th { background: #f8f9fa; color: #666; font-weight: normal; }
         .actions { display: flex; gap: 8px; }
-        .status-active { color: #27ae60; font-weight: bold; }
-        .status-inactive { color: #e74c3c; font-weight: bold; }
         .no-data { text-align: center; color: #999; padding: 30px; }
+        .approval-pending { color: #f39c12; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -48,51 +47,44 @@
             <a href="/members">成员管理</a>
             <a href="/clubs">社团管理</a>
             <a href="/activities">活动管理</a>
+            <a href="/activities/pending">待审批</a>
         </div>
     </div>
     
     <div class="container">
         <div class="section">
             <div class="section-header">
-                <h2>成员列表</h2>
-                <a href="/members/add" class="btn btn-primary">添加成员</a>
+                <h2>待审批活动</h2>
+                <a href="/activities" class="btn btn-primary">返回活动列表</a>
             </div>
             <table class="table">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>姓名</th>
-                        <th>学号</th>
-                        <th>手机号</th>
-                        <th>邮箱</th>
-                        <th>院系</th>
+                        <th>活动名称</th>
+                        <th>所属社团</th>
+                        <th>开始时间</th>
+                        <th>结束时间</th>
+                        <th>地点</th>
                         <th>状态</th>
                         <th>操作</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:if="${members.size() == 0}">
-                        <td colspan="8" class="no-data">暂无成员</td>
+                    <tr th:if="${pendingActivities.size() == 0}">
+                        <td colspan="8" class="no-data">暂无待审批活动</td>
                     </tr>
-                    <tr th:each="member : ${members}">
-                        <td th:text="${member.id}"></td>
-                        <td th:text="${member.name}"></td>
-                        <td th:text="${member.studentId}"></td>
-                        <td th:text="${member.phone}"></td>
-                        <td th:text="${member.email}"></td>
-                        <td th:text="${member.department}"></td>
-                        <td>
-                            <span th:if="${member.status == 'active'}" class="status-active">正常</span>
-                            <span th:else class="status-inactive">已注销</span>
-                        </td>
+                    <tr th:each="activity : ${pendingActivities}">
+                        <td th:text="${activity.id}"></td>
+                        <td><a th:href="'/activities/' + ${activity.id}" th:text="${activity.name}" style="color: #667eea;"></a></td>
+                        <td th:text="${activity.club?.name}"></td>
+                        <td th:text="${activity.startTime}"></td>
+                        <td th:text="${activity.endTime}"></td>
+                        <td th:text="${activity.location}"></td>
+                        <td><span class="approval-pending">待审批</span></td>
                         <td class="actions">
-                            <a th:href="'/members/edit/' + ${member.id}" class="btn btn-primary">编辑</a>
-                            <a th:href="'/members/toggle-status/' + ${member.id}" class="btn btn-warning">
-                                <span th:if="${member.status == 'active'}">注销</span>
-                                <span th:else>激活</span>
-                            </a>
-                            <a th:href="'/members/delete/' + ${member.id}" class="btn btn-danger" 
-                               onclick="return confirm('确定要删除该成员吗？')">删除</a>
+                            <a th:href="'/activities/' + ${activity.id} + '/approve'" class="btn btn-success">批准</a>
+                            <a th:href="'/activities/' + ${activity.id} + '/reject'" class="btn btn-danger">拒绝</a>
                         </td>
                     </tr>
                 </tbody>

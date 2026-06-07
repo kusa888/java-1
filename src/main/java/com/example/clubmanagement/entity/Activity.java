@@ -36,6 +36,9 @@ public class Activity {
     @Column(length = 20)
     private String status = "planned";
     
+    @Column(length = 20)
+    private String approvalStatus = "approved";
+    
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "activity_participants",
@@ -117,6 +120,14 @@ public class Activity {
     
     public void setStatus(String status) {
         this.status = status;
+    }
+    
+    public String getApprovalStatus() {
+        return approvalStatus;
+    }
+    
+    public void setApprovalStatus(String approvalStatus) {
+        this.approvalStatus = approvalStatus;
     }
     
     public Set<Member> getParticipants() {
